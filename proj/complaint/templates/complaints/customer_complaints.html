@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Complaints by {{ user.username }}</h2>
+
+    {% if complaints %}
+      <ul>
+        {% for complaint in complaints %}
+          <li>
+            <strong>Complaint ID:</strong> {{ complaint.id }}<br />
+            <strong>Item:</strong> {{ complaint.item.sub_item_name }}<br />
+            <strong>Customer Type:</strong> {{ complaint.get_customer_type_display }}<br />
+            <strong>Pick Point:</strong> {{ complaint.get_pick_point_display }}<br />
+            <strong>Appointment Date:</strong> {{ complaint.appoinment_date }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No complaints found for this customer.</p>
+    {% endif %}
+  </body>
+</html>
