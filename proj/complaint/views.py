@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from complaint.models import User, Group, Complaint
+from django.contrib.auth.decorators import login_required
 # Create your views here.
+
+@login_required
 def sample(request):
     
     user = User.objects.all()

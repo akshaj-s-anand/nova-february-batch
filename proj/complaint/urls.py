@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from complaint import views
 
 urlpatterns = [
     path('', views.sample, name='sample'),
