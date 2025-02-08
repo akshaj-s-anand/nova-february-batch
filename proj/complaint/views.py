@@ -25,6 +25,7 @@ def sample(request):
     
     return render (request, 'complaints/sample.html', context)
 
+@login_required
 def add_complaint(request):
     if not request.user.is_superuser:
         return redirect('permission_denied')  # Redirect to a permission denied page
@@ -45,7 +46,7 @@ def add_complaint(request):
     return render(request, 'complaints/update_complaint.html', context)
 
 
-
+@login_required
 def update_complaint(request, pk):
     complaint = get_object_or_404(Complaint, id=pk)
     
@@ -72,6 +73,7 @@ def update_complaint(request, pk):
     
     return render(request, 'complaints/update_complaint.html', context)
 
+@login_required
 def customer_complaints(request, user_id):
     # Get the user (User object) based on the user_id
     user = get_object_or_404(User, id=user_id)
@@ -86,6 +88,7 @@ def customer_complaints(request, user_id):
 
     return render(request, 'complaints/customer_complaints.html', context)
 
+@login_required
 def user(request):
     # Annotate each user with the total number of complaints
     users = User.objects.annotate(num_complaints=Count('customer_complaints'))
@@ -96,6 +99,7 @@ def user(request):
     
     return render(request, 'complaints/user.html', context)
 
+@login_required
 def add_user(request):
     if not request.user.is_superuser:
         return redirect('permission_denied')  # Redirect to a permission denied page
@@ -114,6 +118,7 @@ def add_user(request):
     
     return render(request, 'complaints/update_complaint.html', context)
 
+@login_required
 def update_user(request, pk):
     user = get_object_or_404(User, id=pk)
     
