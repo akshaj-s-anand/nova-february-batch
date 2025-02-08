@@ -1,0 +1,43 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Dashboard | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+  <div class="row">
+    <!--User box-->
+    <div class="col-4">
+        <div class="div border rounded p-2 d-flex flex-column justify-content-center align-items-center">
+            <img src="{% static 'svg/user.svg' %}" alt="" width="100px">
+            <div class="row w-100">
+                <div class="col-6">
+                    <h5 class="text-center">Users</h5>
+                    <h1 class="text-center">{{users_count}}</h1>
+                </div>
+                <div class="col-6">
+                    <h5 class="text-center">Customers</h5>
+                    <h1 class="text-center">{{customers_count}}</h1>
+                </div>
+                <a href="#" class="btn-site-color">View all Users</a>
+            </div>
+        </div>
+    </div>
+    <!--Complaint box-->
+    <div class="col-4">
+        <div class="div border rounded p-2 d-flex flex-column justify-content-center align-items-center">
+            <img src="{% static 'svg/complaint-count.svg' %}" alt="" width="100px">
+            <div class="row w-100">
+                <div class="col-6">
+                    <h5 class="text-center">Total Complaints</h5>
+                    <h1 class="text-center">{{complaint_count}}</h1>
+                </div>
+                <div class="col-6">
+                    <h5 class="text-center">Resolved Compaints</h5>
+                    <h1 class="text-center">{{complaint_count}}</h1>
+                </div>
+                <a href="{% url "sample" %}" class="btn-site-color">View all Complaints</a>
+            </div>
+        </div>
+    </div>
+  </div>
+{% endblock %}

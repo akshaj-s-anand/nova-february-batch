@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('complaint/', include('complaint.urls')),
     path('', include('home.urls')),
+    path('dashboard/', include('dashboard.urls')),
 ]

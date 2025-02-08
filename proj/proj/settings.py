@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'complaint',
     'home',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

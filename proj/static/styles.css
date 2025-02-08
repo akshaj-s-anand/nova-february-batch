@@ -1,7 +1,71 @@
-:root{
+:root {
     --body-background-color: #f1f1f1;
+    --front-color: #27272A;
+    --color-one: #e11eb7;
+    --color-one-dark: #cb1c9f;
 }
 
-body{
-    background-color: var(--body-background-color)
+body {
+    background-color: var(--body-background-color) !important;
+    overflow: hidden;
+}
+
+
+.nav-link:hover,
+.active {
+    background-color: var(--color-one);
+}
+
+.btn-site-color {
+    background-color: var(--color-one);
+    color: var(--body-background-color);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    border-radius: 0.35rem;
+    border: none;
+}
+
+.btn-site-color:hover {
+    background-color: var(--color-one-dark);
+}
+
+.main-container {
+    height: 80vh;
+}
+
+.custom-scrollbar {
+    height: 80vh;
+    /* Set fixed height */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    scrollbar-width: thin;
+    /* Firefox scrollbar width */
+    scrollbar-color: #888 #f1f1f1;
+    /* Scrollbar color for Firefox */
+}
+
+/* Scrollbar styles for Chrome, Edge, Safari */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    /* Width of the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* Track color */
+    border-radius: 10px;
+    /* Rounded track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    /* Scrollbar color */
+    border-radius: 10px;
+    /* Rounded scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    /* Scrollbar color on hover */
 }

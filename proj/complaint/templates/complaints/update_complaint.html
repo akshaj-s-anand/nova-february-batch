@@ -1,0 +1,17 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Complaints | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+    <form method="post">
+      {% csrf_token %}
+      {{form.as_p}}
+      <button type="submit" class="btn-site-color">Submit</button>
+      {% if show_delete_button %}
+        <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this complaint?');">Delete</button>
+      {% endif %}
+    </form>
+{% endblock %}
+    
+

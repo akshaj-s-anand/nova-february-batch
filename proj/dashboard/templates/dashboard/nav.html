@@ -1,0 +1,50 @@
+<ul class="nav flex-column" id="navMenu">
+  <li class="nav-item">
+    <a class="nav-link text-white bold" href="{% url 'dashboard' %}" data-id="home">Home</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link text-white bold" href="{% url 'sample' %}" data-id="complaints">Complaints</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link text-white bold" href="{% url "users" %}" data-id="link">Users</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link text-white bold" href="#" data-id="disabled">Disabled</a>
+  </li>
+</ul>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const navItems = document.querySelectorAll("#navMenu .nav-item");
+    
+    // Retrieve stored active item from localStorage
+    const activeItem = localStorage.getItem("activeNavItem");
+
+    if (activeItem) {
+      navItems.forEach(item => {
+        if (item.querySelector("a").getAttribute("data-id") === activeItem) {
+          item.classList.add("active");
+        } else {
+          item.classList.remove("active");
+        }
+      });
+    } else {
+      // If no stored item, set Home as default
+      navItems[0].classList.add("active");
+    }
+
+    navItems.forEach(item => {
+      item.addEventListener("click", function () {
+        // Remove 'active' class from all items
+        navItems.forEach(nav => nav.classList.remove("active"));
+        
+        // Add 'active' class to the clicked item
+        this.classList.add("active");
+
+        // Store the selected item in localStorage
+        const selectedId = this.querySelector("a").getAttribute("data-id");
+        localStorage.setItem("activeNavItem", selectedId);
+      });
+    });
+  });
+</script>
