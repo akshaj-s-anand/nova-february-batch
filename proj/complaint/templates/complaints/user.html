@@ -1,79 +1,76 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+
 {% block title %}
   Complaints | Nova Hardware Complaint Management System
 {% endblock %}
-{% block content %}
-    <div class="container d-flex justify-content-end align-items-center mb-3">
-        <!-- Search Box -->
-        <a href="{% url "add_user" %}" class="btn-site-color mx-3">Add a new User</a>
-        <input type="text" id="searchInput" class="form-control w-50" placeholder="Search by Username, First Name, or Customer Type" />
-    </div>
-    <table id="userTable" class="table table-striped tablesort">
-        <thead>
-            <tr style="cursor: pointer;">
-                <th scope="col" data-sort="number">Sl No <i class="fas fa-sort"></i></th>
-                <th scope="col" data-sort="string">Phone Number <i class="fas fa-sort"></i></th>
-                <th scope="col" data-sort="string">First Name <i class="fas fa-sort"></i></th>
-                <th scope="col" data-sort="string">Email <i class="fas fa-sort"></i></th>
-                <th scope="col" data-sort="string">User Group <i class="fas fa-sort"></i></th>
-                <th scope="col" data-sort="number">Complaints Count <i class="fas fa-sort"></i></th>
-            </tr>
-        </thead>
-        <tbody id="userTableBody">
-            {% for user in users %}
-            <tr style="cursor: pointer;" onclick="window.location.href='{% url 'update_user' user.id %}'">
-                <td>{{ forloop.counter }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    {% if user.groups.all %}
-                        {% for group in user.groups.all %}
-                            {{ group.name }}
-                            {% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        No Group
-                    {% endif %}
-                </td>
-                <td>{{ user.num_complaints }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <script>
-         // Get the search input element and table rows
-         const searchInput = document.getElementById('searchInput');
-         const userTableBody = document.getElementById('userTableBody');
-         const rows = userTableBody.getElementsByTagName('tr');
- 
-         // Add an event listener to the search input
-         searchInput.addEventListener('keyup', function() {
-             const filter = searchInput.value.toLowerCase();
- 
-             // Loop through each row and check if it matches the search input
-             for (let i = 0; i < rows.length; i++) {
-                 const cells = rows[i].getElementsByTagName('td');
-                 let matched = false;
- 
-                 // Check if any of the columns contain the search query
-                 for (let j = 0; j < cells.length; j++) {
-                     if (cells[j].textContent.toLowerCase().indexOf(filter) > -1) {
-                         matched = true;
-                         break;
-                     }
-                 }
- 
-                 // Show or hide the row based on the match
-                 if (matched) {
-                     rows[i].style.display = '';
-                 } else {
-                     rows[i].style.display = 'none';
-                 }
-             }
-         });
-    </script>
-    
+{% block content %}
+  <div class="container d-flex justify-content-end align-items-center mb-3">
+    <a href="{% url 'add_user' %}" class="btn-site-color mx-3">Add a new User</a>
+    <input type="text" id="searchInput" class="form-control w-50" placeholder="Search by Username, First Name, or Customer Type" />
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="spinner-box" class="text-center py-3">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- User Table -->
+  <table id="userTable" class="table table-striped tablesort d-none">
+    <thead>
+      <tr>
+        <th scope="col">Sl No</th>
+        <th scope="col">Phone Number</th>
+        <th scope="col">First Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">User Group</th>
+        <th scope="col">Complaints Count</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const spinnerBox = document.getElementById("spinner-box");
+      const userTable = document.getElementById("userTable");
+      const userTableBody = document.getElementById("userTableBody");
+
+      // Fetch users via AJAX
+      setTimeout(() => {  // 500ms delay
+        fetch("{% url 'users' %}", {
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+          userTableBody.innerHTML = ""; // Clear existing rows
+
+          data.users.forEach((user, index) => {
+            let row = `
+              <tr onclick="window.location.href='/update_user/${user.id}/'">
+                <td>${index + 1}</td>
+                <td>${user.username}</td>
+                <td>${user.first_name || "N/A"}</td>
+                <td>${user.email || "N/A"}</td>
+                <td>${user.groups ? user.groups.join(", ") : "No Group"}</td>
+                <td>${user.num_complaints}</td>
+              </tr>
+            `;
+            userTableBody.innerHTML += row;
+          });
+
+          // Hide spinner and show table
+          spinnerBox.classList.add("d-none");
+          userTable.classList.remove("d-none");
+        })
+        .catch(error => {
+          console.error("Failed to load users:", error);
+          spinnerBox.innerHTML = '<p class="text-danger h5">Failed to load users.</p>';
+        });
+      }, 500); // Show spinner for 500ms
+    });
+  </script>
 {% endblock %}

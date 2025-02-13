@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!--Font awesone cdn-->
+    <!-- Font awesone cdn -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <!-- my style sheet -->
     <link rel="stylesheet" href="{% static 'styles.css' %}" />
@@ -17,13 +17,22 @@
       {% endblock %}
     </title>
   </head>
-  <body class="py-5">
+  <body class="py-5" id="main-content">
     <div class="container d-flex justify-content-end mb-1">
-      <a href="{% url 'sample' %}" class="btn"><img src="{% static 'svg/visit-site.svg' %}" /></a>
+      <a href="{% url 'complaint_list' %}" class="btn"><img src="{% static 'svg/visit-site.svg' %}" /></a>
       <a href="{% url 'dashboard' %}" class="btn" data-id="home"><img src="{% static 'svg/home.svg' %}" /></a>
       <a href="{% url 'logout' %}" class="btn"><img src="{% static 'svg/logout.svg' %}" /></a>
     </div>
     <div class="container bg-white rounded shadow main-container">
+      <div class="bg-success">
+        {% if messages %}
+          <div class="alert alert-success">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
       <div class="row">
         <div class="col-3 bg-dark rounded py-5 main-container">
           {% include 'dashboard/nav.html' %}
@@ -37,12 +46,14 @@
     </div>
   </body>
 
-  <!--ajax table sort-->
+  <!-- ajax table sort -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
-  <!-- my javascripts -->
-  <script src="{% static 'scripts.js' %}"></script>
   <!-- bootstrap 5.3.3 -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <!-- jquery 3.6.0 -->
   <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+  <!-- my javascripts -->
+  <script src="{% static 'scripts.js' %}"></script>
+  {% block javascripts %}
+  {% endblock %}
 </html>

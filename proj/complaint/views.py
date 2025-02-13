@@ -7,71 +7,77 @@ from django.views.generic.edit import UpdateView
 from complaint.form import ComplaintForm, UserForm
 from django.http import JsonResponse
 from django.db.models import Count
+from django.contrib import messages
+from django.contrib.auth import login
+from django import forms
+from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 # Create your views here.
 
 @login_required
-def sample(request):
+def complaint_list(request):
+    if not request.user.is_superuser:
+        return redirect('permission_denied')
     
-    user = User.objects.all()
-    # customers = User.objects.filter(groups__id=1)
-    complaint = Complaint.objects.all()
+    else:
+        complaints = Complaint.objects.all()
+    
+        context = {
+            'complaints': complaints
+        }
 
-    
-    context = {
-        'users': user,
-        # 'customers':customers,
-        'complaint':complaint,
-    }
-    
-    return render (request, 'complaints/sample.html', context)
+        return render(request, "complaints/complaint_list.html", context)
 
 @login_required
 def add_complaint(request):
     if not request.user.is_superuser:
         return redirect('permission_denied')  # Redirect to a permission denied page
-    
-    if request.method == 'POST':
-        form = ComplaintForm(request.POST)
-        if form.is_valid():
-            complaint = form.save(commit=False)
-            complaint.save()
-            return redirect(reverse('sample') )
     else:
-        form = ComplaintForm()
+        if request.method == 'POST':
+            form = ComplaintForm(request.POST)
+            if form.is_valid():
+                complaint = form.save(commit=False)
+                complaint.save()
+                return redirect(reverse('complaint_list') )
+        else:
+            form = ComplaintForm()
 
-    context = {
-        'form': form,
-    }
+        context = {
+            'form': form,
+        }
 
-    return render(request, 'complaints/update_complaint.html', context)
+        return render(request, 'complaints/update_complaint.html', context)
 
 
 @login_required
 def update_complaint(request, pk):
-    complaint = get_object_or_404(Complaint, id=pk)
-    
-    # Check if the user is a superuser
     if not request.user.is_superuser:
-        return redirect('permission_denied')  # Redirect to permission denied page
+        return redirect(reverse_lazy('permission_denied')) 
     
-    # If 'delete' button is pressed
-    if 'delete' in request.POST:
-        complaint.delete()  # Delete the complaint
-        return redirect(reverse('sample'))  # Redirect to another page after deletion
+    complaint = get_object_or_404(Complaint, id=pk)
+
+    # Restrict access to superusers only
     
-    # Handling form submission
+
+    # Handle complaint deletion
+    if request.method == "POST" and "delete" in request.POST:
+        complaint.delete()
+        return redirect(reverse_lazy('sample'))  # Redirect after deletion
+
+    # Process form submission
     form = ComplaintForm(request.POST or None, instance=complaint)
     if form.is_valid():
-        form.save()  # Save the updated complaint
-        return redirect(reverse('sample'))  # Redirect after successful update
-    
+        form.save()
+        return redirect(reverse_lazy('sample'))  # Redirect after successful update
+
     context = {
-        'form': form,
-        'complaint': complaint,
-        'show_delete_button': True, 
+        "form": form,
+        "complaint": complaint,
+        "show_delete_button": True,
     }
     
-    return render(request, 'complaints/update_complaint.html', context)
+    return render(request, "complaints/update_complaint.html", context)
 
 @login_required
 def customer_complaints(request, user_id):
@@ -85,30 +91,45 @@ def customer_complaints(request, user_id):
         'user': user,
         'complaints': complaints,
     }
+    
+    #ajax
+    if request.headers.get('X-Request-With')== + 'XMLHttpRequest':
+        complaints = Complaint.objects.annotate(num_complaints = Count('customer_complaints')).values(
+            'id','customer', 'item', 'customer_type', 'pick_point', 'appoinment_date', 'complaint_description', 'assigned_to', 'status','technical_report', 'components_used', 'bill_amount'
+        )
 
     return render(request, 'complaints/customer_complaints.html', context)
 
+
 @login_required
-def user(request):
-    # Annotate each user with the total number of complaints
-    users = User.objects.annotate(num_complaints=Count('customer_complaints'))
-    
-    context = {
-        'users': users,
-    }
-    
-    return render(request, 'complaints/user.html', context)
+def user_list(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if the request is AJAX
+        users = User.objects.annotate(num_complaints=Count('customer_complaints')).values(
+            'id', 'username', 'first_name', 'email'
+        )
+
+        # Convert QuerySet to list and add user groups
+        user_list = []
+        for user in users:
+            user_obj = User.objects.get(id=user["id"])  # Fetch user object to get groups
+            user["groups"] = [group.name for group in user_obj.groups.all()]  # Add groups
+            user_list.append(user)
+
+        return JsonResponse({'users': user_list})
+
+    return render(request, 'complaints/user.html')
+
 
 @login_required
 def add_user(request):
     if not request.user.is_superuser:
         return redirect('permission_denied')  # Redirect to a permission denied page
     
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect(reverse('users'))  # Redirect to users list page after creation
+            user = form.save()
+            return redirect('users')  # Change 'home' to the appropriate redirect URL
     else:
         form = UserForm()
     
@@ -122,28 +143,35 @@ def add_user(request):
 def update_user(request, pk):
     user = get_object_or_404(User, id=pk)
     
-    # Check if the user is a superuser
+    # Check if the logged-in user is a superuser
     if not request.user.is_superuser:
-        return redirect('permission_denied')  # Redirect to permission denied page
+        return redirect('permission_denied')  # Redirect to a permission denied page
+
+    # Handle deletion
+    if request.method == "POST" and "delete" in request.POST:
+        user.delete()
+        return redirect(reverse('users'))  # Redirect after deletion
     
-    # If 'delete' button is pressed
-    if 'delete' in request.POST:
-        user.delete()  # Delete the complaint
-        return redirect(reverse('users'))  # Redirect to another page after deletion
-    
-    # Handling form submission
-    form = UserForm(request.POST or None, instance=user)
-    if form.is_valid():
-        form.save()  # Save the updated complaint
-        return redirect(reverse('users'))  # Redirect after successful update
-    
+    # Handle form submission
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            # If a new password is provided, hash it before saving
+            if form.cleaned_data['password']:  
+                user.set_password(form.cleaned_data['password'])
+            form.save()
+            return redirect(reverse('users'))  # Redirect after successful update
+    else:
+        # Pre-fill the form but do not show the password field
+        form = UserForm(instance=user, initial={'password': ''})
+        form.fields['password'].widget = forms.HiddenInput()  # Hide the password field
+
     context = {
         'form': form,
-        'complaint': user,
-        'show_delete_button': True, 
+        'user_obj': user,
+        'show_delete_button': True,
     }
     
-    return render(request, 'complaints/update_complaint.html', context)
-
+    return render(request, 'complaints/update_user.html', context)
 
 

@@ -6,6 +6,14 @@ from django.dispatch import receiver
 
 # Create your models here.
 
+class ComplaintStatuses(models.Model):
+    id= models.AutoField(primary_key=True)
+    status = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return self.status
+    
+
 class Item(models.Model):
     id = models.AutoField(primary_key=True)
     item_name = models.CharField(max_length=20)
@@ -22,13 +30,17 @@ class SubItem(models.Model):
         return self.sub_item_name
 
 
-from django.contrib.auth.models import User
-from django.db import models
+class Components(models.Model):
+    id = models.AutoField(primary_key=True)
+    component = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return self.component
 
 class Complaint(models.Model):
     id = models.AutoField(primary_key=True)
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customer_complaints')
-    item = models.ForeignKey(SubItem, on_delete=models.CASCADE, blank=True, null=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, blank=True, null=True)
     
     CUSTOMER_TYPE_CHOICES = (
         ('person', 'person'),
@@ -45,7 +57,13 @@ class Complaint(models.Model):
     pick_point = models.CharField(max_length=10, choices=PICK_POINT_CHOICES, null=True, blank=True)
     
     appoinment_date = models.DateTimeField()
+    complaint_description = models.TextField(null=True, blank=True)
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='assigned_complaints')
+    status = models.ForeignKey(ComplaintStatuses, on_delete=models.CASCADE, null=True, blank=True)
+    technical_report = models.TextField(null=True, blank=True)
+    components_used = models.ManyToManyField(Components)
+    bill_amount = models.IntegerField(default=0)
+    
 
     def __str__(self):
        return f"Complaint ID: {self.id} by {self.customer.username}"

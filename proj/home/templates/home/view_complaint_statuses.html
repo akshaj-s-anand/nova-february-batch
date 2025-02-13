@@ -1,0 +1,30 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Complaint Statuses | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+  <div class="container d-flex justify-content-end align-items-center mb-3">
+    <a href="{% url 'add_complaint_status' %}" class="btn-site-color mx-3">Add a New Status</a>
+  </div>
+  <table id="statusesTable" class="table table-striped tablesort">
+    <thead>
+      <tr style="cursor: pointer;">
+        <th scope="col" data-sort="number">
+          Sl No <i class="fas fa-sort"></i>
+        </th>
+        <th scope="col" data-sort="text">
+          Status <i class="fas fa-sort"></i>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for status in statuses %}
+        <tr style="cursor: pointer;" onclick="window.location.href='{% url "edit_complaint_status" status.id %}'">
+          <td>{{ forloop.counter }}</td>
+          <td>{{ status.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

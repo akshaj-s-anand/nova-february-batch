@@ -139,7 +139,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-LOGIN_URL = "/login/"
+LOGIN_URL = "login"
 
 
 # Default primary key field type

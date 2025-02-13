@@ -1,18 +1,25 @@
 from django import forms
 from django.contrib.auth.models import User
 from complaint.models import Complaint
+from django.contrib.auth.hashers import make_password
 
 class ComplaintForm(forms.ModelForm):
     class Meta:
         model = Complaint
-        fields = ['customer', 'item', 'customer_type', 'pick_point', 'appoinment_date', 'assigned_to']
+        fields = ['customer', 'item', 'customer_type', 'pick_point', 'appoinment_date', 'complaint_description', 'assigned_to', 'status', 'technical_report', 'components_used', 'bill_amount']
         labels = {
-            'customer': 'Customer Name',
+            'customer': 'Phone Number',
             'item': 'Item',
             'customer_type': 'Customer Type',
             'pick_point': 'Pick-up Point',
             'appoinment_date': 'Appointment Date',
+            'complaint_description': 'Complaint Description',
             'assigned_to': 'Assigned To',
+            'status':'Status',
+            'technical_report': 'Technical report',
+            'components_used': 'Components Used',
+            'bill_amount': 'Billed amount',
+            
         }
         widgets = {
             'customer': forms.Select(attrs={'class': 'form-control'}),
@@ -21,6 +28,11 @@ class ComplaintForm(forms.ModelForm):
             'pick_point': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Enter pick-up location'}),
             'appoinment_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'assigned_to': forms.Select(attrs={'class': 'form-control'}),
+            'complaint_description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter complaint description'}),
+            'status': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Select Status'}),
+            'technical_report': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Enter Technical Report'}),
+            'components_used': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            # 'bill_amount': forms.CharField(attrs={'class': 'form-control'})
         }
         help_texts = {
             'appoinment_date': 'Select a valid date for the appointment.',
@@ -66,3 +78,32 @@ class UserForm(forms.ModelForm):
             'date_joined': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
             'groups': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Make password field optional for updates (not required)
+        if self.instance and self.instance.pk:
+            self.fields['password'].required = False
+
+    def save(self, commit=True):
+    # Save the user object
+        user = super().save(commit=False)
+    
+    # Hash the password before saving
+        if self.cleaned_data['password']:
+            user.password = make_password(self.cleaned_data['password'])
+    
+        if commit:
+            user.save()
+
+        # Ensure 'groups' is a list or queryset of groups
+            groups = self.cleaned_data['groups']
+            if groups:
+                user.groups.set(groups)  # Set the groups from the cleaned data
+        
+            user.save()
+    
+            return user
+
+    

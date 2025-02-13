@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Complaint Status | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+  <h2 class="mb-3 text-center">
+    {% if status %}
+      Update Complaint Status
+    {% else %}
+      Add Complaint Status
+    {% endif %}
+  </h2>
+  <form method="post">
+    {{ form.as_p }}
+    {% csrf_token %}
+    <button type="submit" class="btn-site-color">
+      {% if status %}
+        Update Status
+      {% else %}
+        Add Status
+      {% endif %}
+    </button>
+    {% if status %}
+      <!-- Delete Button (Visible only when updating a status) -->
+      <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this status?');">Delete Status</button>
+    {% endif %}
+  </form>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Complaints | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+  <div class="container d-flex justify-content-end align-items-center mb-3">
+    <!-- Add Complaint Button -->
+    <a href="{% url "add_complaint" %}" class="btn-site-color mx-3">Add a new complaint</a>
+    
+    <!-- Search Box -->
+    <input type="text" id="searchInput" class="form-control w-50" placeholder="Search complaints..." onkeyup="filterTable()" />
+  </div>
+
+  <table id="complaintsTable" class="table table-striped tablesort">
+    <thead>
+        <tr>
+            <th scope="col">Sl No</th>
+            <th scope="col">Date</th>
+            <th scope="col">Username</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Item</th>
+            <th scope="col">Customer Type</th>
+        </tr>
+    </thead>
+    <tbody id="complaintTableBody">
+        {% if complaints %}
+            {% for complaint in complaints %}
+            <tr style="cursor: pointer;" onclick="window.location.href='{% url "update_complaint" complaint.id %}'">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ complaint.appoinment_date|date:"Y-m-d H:i" }}</td>
+                <td>{{ complaint.customer.username }}</td>
+                <td>{{ complaint.customer.first_name }}</td>
+                <td>{{ complaint.item.sub_item_name|default:"N/A" }}</td>
+                <td>{{ complaint.get_customer_type_display }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="6" class="text-center">No complaints found.</td>
+        </tr>
+        {% endif %}
+    </tbody>
+  </table>
+
+  <script>
+    function filterTable() {
+        let input = document.getElementById("searchInput");
+        let filter = input.value.toLowerCase();
+        let rows = document.querySelectorAll("#complaintsTable tbody tr");
+
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? "" : "none";
+        });
+    }
+  </script>
+
+{% endblock %}

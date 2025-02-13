@@ -1,0 +1,74 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block title %}
+  Items | Nova Hardware Complaint Management System
+{% endblock %}
+{% block content %}
+  <div class="container d-flex justify-content-end align-items-center mb-3">
+    <a href="{% url 'add_item' %}" class="btn-site-color mx-3">Add a new Item</a>
+  </div>
+
+  <table id="itemsTable" class="table table-striped tablesort">
+    <thead>
+      <tr style="cursor: pointer;">
+        <th scope="col">
+          Sl No <i class="fas fa-sort"></i>
+        </th>
+        <th scope="col">
+          Item Name <i class="fas fa-sort"></i>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="itemsTableBody">
+      <!-- Items will be loaded here via AJAX -->
+    </tbody>
+  </table>
+
+  {% block javascripts %}
+    <script>
+      $(document).ready(function() {
+        function loadItems() {
+            $.ajax({
+                url: "{% url 'view_item' %}",  
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    let tableBody = $("#itemsTableBody");
+    
+                    // Append only new rows (instead of emptying the table)
+                    tableBody.empty();  
+                    data.forEach((item, index) => {
+                        let row = `<tr style="cursor: pointer;" data-id="${item.id}">
+                                       <td>${index + 1}</td>
+                                       <td>${item.item_name}</td>
+                                   </tr>`;
+                        tableBody.append(row);
+                    });
+    
+                    // Attach click event dynamically
+                    $("#itemsTableBody tr").click(function() {
+                        let itemId = $(this).data("id");
+                        let updateUrl = "{% url 'update_item' 0 %}".replace('/0/', '/' + itemId);
+                        window.location.href = updateUrl;
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error loading items:", error);
+                }
+            });
+        }
+    
+        loadItems();  // Load items on page load
+    
+        // Attach click event to preloaded table rows
+        $("#itemsTableBody tr").click(function() {
+            let itemId = $(this).data("id");
+            let updateUrl = "{% url 'update_item' 0 %}".replace('/0/', '/' + itemId);
+            window.location.href = updateUrl;
+        });
+    });
+    
+    
+    </script>
+  {% endblock %}
+{% endblock %}

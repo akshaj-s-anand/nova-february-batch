@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
   <div class="container">
-    <h2>Create New User</h2>
+    <h2>Create / Update a User</h2>
     <form method="post">
       {% csrf_token %}
       {{ form.as_p }}
